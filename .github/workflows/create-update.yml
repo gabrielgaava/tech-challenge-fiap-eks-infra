@@ -1,0 +1,68 @@
+name: Deploy or Update Infra to AWS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Check if Cluster Exists
+        id: check_cluster
+        run: |
+          CLUSTER_NAME="eks-tech-challenge"
+          STATUS=$(aws eks describe-cluster --name $CLUSTER_NAME --query 'cluster.status' --output text 2>/dev/null || echo "not_found")
+          echo "CLUSTER_STATUS=$STATUS" >> $GITHUB_ENV
+
+      - name: Terraform Init
+        if: env.CLUSTER_STATUS == 'not_found'
+        run: terraform init
+
+      - name: Terraform Plan
+        if: env.CLUSTER_STATUS == 'not_found'
+        env:
+          TF_LOG: DEBUG
+          TF_VAR_db_master_username: ${{ secrets.DB_MASTER_USERNAME }}
+          TF_VAR_db_master_password: ${{ secrets.DB_MASTER_PASSWORD }}
+        run: terraform plan
+
+      - name: Terraform Apply
+        if: env.CLUSTER_STATUS == 'not_found'
+        env:
+          TF_VAR_db_master_username: ${{ secrets.DB_MASTER_USERNAME }}
+          TF_VAR_db_master_password: ${{ secrets.DB_MASTER_PASSWORD }}
+        run: terraform apply -auto-approve
+
+      - name: Creating Cluster
+        if: env.CLUSTER_STATUS == 'not_found'
+        id: wait_for_db
+        run: |
+          CLUSTER_NAME="eks-tech-challenge"
+          STATUS=""
+          while [ "$STATUS" != "ACTIVE" ]; do
+            STATUS=$(aws eks describe-cluster --name $CLUSTER_NAME --query 'cluster.status' --output text)
+            echo "Current status: $STATUS"
+            if [ "$STATUS" != "ACTIVE" ]; then
+              echo "Cluster is not ready yet, waiting for 30 seconds..."
+              sleep 30
+            fi
+          done
+          echo "EKS Cluster $CLUSTER_NAME is now ACTIVE!"
