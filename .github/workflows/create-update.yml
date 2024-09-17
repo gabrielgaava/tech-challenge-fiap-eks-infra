@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  deploy:
+  Create-And-Update:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -40,15 +40,19 @@ jobs:
         if: env.CLUSTER_STATUS == 'not_found'
         env:
           TF_LOG: DEBUG
-          TF_VAR_db_master_username: ${{ secrets.DB_MASTER_USERNAME }}
-          TF_VAR_db_master_password: ${{ secrets.DB_MASTER_PASSWORD }}
+          TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          TF_VAR_aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_aws_session_tokeny: ${{ secrets.AWS_SESSION_TOKEN }}
+          TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
         run: terraform plan
 
       - name: Terraform Apply
         if: env.CLUSTER_STATUS == 'not_found'
         env:
-          TF_VAR_db_master_username: ${{ secrets.DB_MASTER_USERNAME }}
-          TF_VAR_db_master_password: ${{ secrets.DB_MASTER_PASSWORD }}
+          TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          TF_VAR_aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_aws_session_tokeny: ${{ secrets.AWS_SESSION_TOKEN }}
+          TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
         run: terraform apply -auto-approve
 
       - name: Creating Cluster
