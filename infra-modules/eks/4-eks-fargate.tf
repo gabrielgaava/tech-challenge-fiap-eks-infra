@@ -4,10 +4,7 @@
   
     pod_execution_role_arn = "arn:aws:iam::387913590278:role/LabRole"
   
-    subnet_ids = concat(
-      module.vpc.private_subnets,
-      module.vpc.public_subnets
-    )
+    subnet_ids = module.vpc.private_subnets
   
     selector {
       namespace = "default"
