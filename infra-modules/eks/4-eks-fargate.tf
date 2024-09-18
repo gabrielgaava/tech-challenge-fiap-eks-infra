@@ -12,6 +12,8 @@
     selector {
       namespace = "default"
     }
+
+    depends_on = [ aws_eks_cluster.this ]
   }
 
 /*
