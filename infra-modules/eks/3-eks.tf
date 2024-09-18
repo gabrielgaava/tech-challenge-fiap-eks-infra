@@ -17,19 +17,3 @@ resource "aws_eks_cluster" "this" {
     )
   }
 }
-
-resource "aws_eks_fargate_profile" "fargate_profile" {
-  cluster_name = var.cluster_name
-  fargate_profile_name = "fargate-/${var.cluster_name}"
-
-  pod_execution_role_arn = "arn:aws:iam::387913590278:role/LabRole"
-
-  subnet_ids = concat(
-    module.vpc.private_subnets,
-    module.vpc.public_subnets
-  )
-
-  selector {
-    namespace = "default"
-  }
-}
