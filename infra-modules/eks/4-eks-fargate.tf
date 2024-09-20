@@ -2,7 +2,7 @@
     cluster_name = var.cluster_name
     fargate_profile_name = "fargate-${var.cluster_name}"
   
-    pod_execution_role_arn = "arn:aws:iam::387913590278:role/LabRole"
+    pod_execution_role_arn = "arn:aws:iam::793862496606:role/LabRole"
   
     subnet_ids = module.vpc.private_subnets
   

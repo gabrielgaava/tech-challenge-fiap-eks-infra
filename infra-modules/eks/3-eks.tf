@@ -8,7 +8,7 @@
 resource "aws_eks_cluster" "this" {
   name     = var.cluster_name
   version  = "1.30"
-  role_arn = "arn:aws:iam::387913590278:role/LabRole"
+  role_arn = "arn:aws:iam::793862496606:role/LabRole"
 
   vpc_config {
     subnet_ids = concat(
