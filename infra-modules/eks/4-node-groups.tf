@@ -3,7 +3,7 @@
 resource "aws_eks_node_group" "private_nodes" {
     cluster_name    = aws_eks_cluster.this.name
     node_group_name = "private-nodes"
-    node_role_arn   = "arn:aws:iam::985353326468:role/LabRole"
+    node_role_arn   = "arn:aws:iam::775370709632:role/LabRole"
 
     subnet_ids = module.vpc.private_subnets
     
